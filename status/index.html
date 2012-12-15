@@ -1,0 +1,70 @@
+<div id="publish">
+
+</div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SmartLight - Status Page</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    </style>
+  </head>
+  <body>
+
+    <!--Header-->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">SmartLight</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#status">Status</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <!--Main Container-->
+    <div class="container">
+      <h1>Status Page</h1>
+
+      <div id="image"></div>
+
+      <!--Footer-->
+      <hr>
+      <footer>
+        <p>&copy; SmartLight 2012</p>
+      </footer>
+    </div>
+
+
+    <!--Javascript-->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="js/socket.io.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      var socket = io.connect('http://pedrodiogorpi.local:8000');
+      socket.on('image', function (data) {
+        var status = data["status"];
+        var data = data["data"];
+        if (status == 200)
+          $("#image").html('<img src="data:image/png;base64,' + data + '" />')
+      });
+    </script>
+
+ </body>
+</html>
