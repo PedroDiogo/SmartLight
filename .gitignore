@@ -1,8 +1,11 @@
 *.py[cod]
 
-*.py.swp
-output*
-output/*
+# My Ignores
+*.swp
+*.log
+output
+node_modules
+
 # C extensions
 *.so
 
