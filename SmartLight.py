@@ -7,16 +7,16 @@ class SmartLight():
     
     # == Motion Variables & Constants ==
     motionColorThreshold = 2
-    motionThreshold = 0.25
+    motionThreshold = 0.3
     motionGuessThreshold = 0.5
     
     motionValue = 0
     motionGuess = [0, 0.0]
 
     # == Skintone Variables & Constants ==
-    skinBlobArea = 25
-    skinBlobRatio = 0.5
-    skinThreshold = 0.5
+    skinBlobArea = 10 
+    skinBlobRatio = 0.4
+    skinThreshold = 0.3
     
     skinValue = 0
     
@@ -38,7 +38,7 @@ class SmartLight():
     def detectMotion(self, previousFrame, currentFrame):
       
       # Detect changes from this previous to this frame
-      diff = previousFrame.grayscale() - currentFrame.grayscale()
+      diff = previousFrame.erode().dilate().grayscale() - currentFrame.erode().dilate().grayscale()
       
       # Motion! We consider we have motion if the mean color is greater than a certain threshold
       return diff.meanColor()[0] > self.motionColorThreshold
@@ -77,7 +77,7 @@ class SmartLight():
         self.motionGuess[1] += ((self.skinValue > self.skinThreshold) - self.motionGuess[1])/self.motionGuess[0]
         
       # Turn on the Lights (or not...)!
-      if self.skinValue > self.skinThreshold or (self.motionValue > self.motionThreshold and self.motionGuess > self.motionGuessThreshold):
+      if self.skinValue > self.skinThreshold or (self.motionValue > self.motionThreshold and self.motionGuess[1] > self.motionGuessThreshold):
           self.timerValue = int(self.timerInitValue * self.FPS)
         
       # Calculate the new FPS rate
@@ -90,7 +90,7 @@ class SmartLight():
       # Update the new time
       self.FPSTime = FPSCurrTime
        
-      return {"motion": self.motionValue > self.motionThreshold, "motionValue": self.motionValue, "motionGuess": self.motionGuess > self.motionGuessThreshold, "motionGuessValue": self.motionGuess, "people": self.skinValue > self.skinThreshold, "skinValue": self.skinValue, "lights": self.timerValue > 0, "timer": self.timerValue, "FPS": self.FPS}
+      return {"motion": self.motionValue > self.motionThreshold, "motionValue": self.motionValue, "motionGuess": self.motionGuess[1] > self.motionGuessThreshold, "motionGuessValue": self.motionGuess[1], "people": self.skinValue > self.skinThreshold, "skinValue": self.skinValue, "lights": self.timerValue > 0, "timer": self.timerValue, "FPS": self.FPS}
     
     def __init__(self, cameraID = -1, skinBlobArea = None):
       self.camera = Camera(cameraID)

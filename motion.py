@@ -49,8 +49,9 @@ def main():
       if args.output:
         # Dump info to JSON file
         with open(args.info, 'wb') as fp: json.dump(info, fp)
-        # Save image to file
-        smartlight.saveImage(args.image)
+        # Save image to file only if there's need for it
+        if info["motion"] or info["people"] or info["lights"]:
+          smartlight.saveImage(args.image)
       
       # If option was provided, print to display
       if args.display:
