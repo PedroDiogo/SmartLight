@@ -15,7 +15,7 @@ function sendFile(socket, id, filename)
         socket.emit(id, {"status": 200,"data": new Buffer(data).toString('base64')});
     });
 }
-var detectFileChange = function(socket, id, filename) {
+function detectFileChange(socket, id, filename) {
     fs.watchFile(__dirname + '/' + filename, function(curr, prev) {
       sendFile(socket, id, filename);
     });
@@ -23,5 +23,7 @@ var detectFileChange = function(socket, id, filename) {
 
 io.sockets.on('connection', function (socket) {
   sendFile(socket, 'image', 'output/camera.png');
+  sendFile(socket, 'info', 'output/info.json');
   detectFileChange(socket, 'image', 'output/camera.png');
+  detectFileChange(socket, 'info', 'output/info.json');
 });
