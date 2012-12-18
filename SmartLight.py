@@ -3,7 +3,7 @@ from datetime import datetime
 
 class SmartLight():    
     # = Constants =
-    alpha = 0.1
+    alpha = 0.3
     
     # == Motion Variables & Constants ==
     motionColorThreshold = 2
@@ -12,6 +12,7 @@ class SmartLight():
     
     motionValue = 0
     motionGuess = [0, 0.0]
+    motionGuessTime = datetime.now()
 
     # == Skintone Variables & Constants ==
     skinBlobArea = 10 
@@ -61,8 +62,12 @@ class SmartLight():
     
     def run(self):
       # Update timer
-      if self.timerValue > 0: self.timerValue -= 1
+      if self.timerValue > 0: 
+        self.timerValue -= 1
+        if self.timerValue == 0:
+          self.motionGuessTime = datetime.now()
       
+
       # Get new image from camera
       previousImage = self.image
       self.image = self.camera.getImage()
@@ -77,7 +82,7 @@ class SmartLight():
         self.motionGuess[1] += ((self.skinValue > self.skinThreshold) - self.motionGuess[1])/self.motionGuess[0]
         
       # Turn on the Lights (or not...)!
-      if self.skinValue > self.skinThreshold or (self.motionValue > self.motionThreshold and self.motionGuess[1] > self.motionGuessThreshold):
+      if self.skinValue > self.skinThreshold or (self.motionValue > self.motionThreshold and self.motionGuess[1] > self.motionGuessThreshold and (datetime.now() - self.motionGuessTime).seconds > 2):
           self.timerValue = int(self.timerInitValue * self.FPS)
         
       # Calculate the new FPS rate
