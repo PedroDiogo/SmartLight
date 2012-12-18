@@ -1,8 +1,12 @@
 import argparse, curses, json
 from SmartLight import *
 
-def usage():
-    pass
+# O primeiro send nunca funciona, enviar dummy
+# Para ligar - ON;
+# Para desligar - OFF;
+# Para aumentar intensidade - S+XZ (Espera de 5.5ms = 55) - Enviar 2 vezes 
+# Para diminuir intensidade - S-XZ (Espera de 5.5ms = 55) - Enviar 2 vezes 
+
 
 def main():
     camera = -1
@@ -33,7 +37,10 @@ def main():
       ser = serial.Serial(args.serial, 115200)
       ser.write(b'\x99') # Send a reset command
       ser.read(ser.inWaiting())
-
+      # Send a (rude) dummy message
+      ser.write("Fuck You")
+      ser.read(ser.inWaiting())
+    
     # Init Curses
     screen = curses.initscr()
     screen.nodelay(1)
@@ -58,7 +65,7 @@ def main():
         smartlight.saveImage(display)
       
       if args.serial is not None and info["lights"] != previousLights:
-          ser.write(b'\xA5' if info["lights"] == True else b'\xA6')
+          ser.write("ON;" if info["lights"] == True else "OFF;")
           ser.read(ser.inWaiting());
           previousLights = info["lights"]
 
