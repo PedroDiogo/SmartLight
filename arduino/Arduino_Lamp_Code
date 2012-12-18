@@ -1,0 +1,72 @@
+/**
+* Dimms about 50%
+*/
+#include <SPI.h>
+#include <mrf24j.h>
+
+const char pin_reset = 6;
+const char pin_cs = 10; // default CS pin on ATmega8/168/328
+const char pin_interrupt = 2; // default interrupt pin on ATmega8/168/328
+const char pin_light = 8;
+char stat = LOW;
+char sync = LOW;
+char del = 5;
+Mrf24j mrf(pin_reset, pin_cs, pin_interrupt);
+
+long last_time;
+long tx_interval = 1000;
+
+void setup() {
+  Serial.begin(115200);
+  mrf.reset();
+  mrf.init();
+  mrf.set_pan(0xcafe);
+  mrf.address16_write(0x6002); 
+  pinMode(pin_light, OUTPUT);
+  digitalWrite(pin_light, stat);
+  attachInterrupt(0, interrupt_routine, CHANGE); // interrupt 0 equivalent to pin 2(INT0) on ATmega8/168/328
+  attachInterrupt(1, zero_detect, RISING);
+  interrupts();
+}
+
+void interrupt_routine() {
+    mrf.interrupt_handler(); // mrf24 object interrupt routine
+}
+
+void loop() {
+    if(sync == HIGH){
+     delay(del);
+     digitalWrite(pin_light, 0);
+     delay(1);
+     digitalWrite(pin_light, 1);
+     sync = LOW;
+    }
+   mrf.check_flags(&handle_rx, &handle_tx);
+}
+
+void handle_rx() {
+    if(mrf.get_rxinfo()->rx_data[0] == 'O')
+    switch(mrf.get_rxinfo()->rx_data[0]){
+      case 'F':
+        stat = LOW;
+        break;
+      case 'N':
+        stat = HIGH;
+        break;
+    }
+}
+
+void handle_tx() {
+}
+
+void zero_detect(){
+  sync = HIGH;
+  if (stat == LOW){
+    if(del >3)
+      del--;
+  }
+  else{
+    if(del <9)
+      del++;
+  }
+}
